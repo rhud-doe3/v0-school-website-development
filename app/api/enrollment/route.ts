@@ -33,7 +33,7 @@ export async function POST(request: Request) {
     
     console.log("[v0] New enrollment submission:", enrollment)
     
-    return NextResponse.json({ success: true, enrollment })
+    return NextResponse.json({ success: true, data: enrollment })
   } catch (error) {
     console.error("[v0] Enrollment error:", error)
     return NextResponse.json({ success: false, error: "Failed to submit enrollment" }, { status: 500 })

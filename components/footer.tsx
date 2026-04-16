@@ -11,11 +11,11 @@ export function Footer() {
           <div>
             <div className="flex items-center gap-3 mb-4">
               <Image
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/upscalemedia-transformed%20%286%29.png-Q38EcXynaxQ9WBgWeT8qUCarPqUFhV.jpeg"
+                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/upscalemedia-transformed%20%285%29.png-pmH9CYZqizaCeiWuN4BMm17mRS4KpY.jpeg"
                 alt="Thika Blue Roses School Logo"
                 width={50}
                 height={50}
-                className="rounded-full"
+                className="rounded-lg bg-white p-0.5"
               />
               <div>
                 <h3 className="font-bold text-lg">Thika Blue Roses</h3>
@@ -50,8 +50,8 @@ export function Footer() {
                 </a>
               </li>
               <li>
-                <a href="#vacancy" className="text-background/70 hover:text-background transition-colors text-sm">
-                  Careers
+                <a href="#reviews" className="text-background/70 hover:text-background transition-colors text-sm">
+                  Reviews
                 </a>
               </li>
               <li>

@@ -47,6 +47,14 @@ export function EnrollmentForm() {
       })
       
       if (response.ok) {
+        const result = await response.json()
+        
+        // Save to localStorage for admin dashboard
+        const existingEnrollments = localStorage.getItem("tbrs_enrollments")
+        const enrollments = existingEnrollments ? JSON.parse(existingEnrollments) : []
+        enrollments.unshift(result.data)
+        localStorage.setItem("tbrs_enrollments", JSON.stringify(enrollments))
+        
         setIsSubmitted(true)
         setFormData({
           studentFullName: "",

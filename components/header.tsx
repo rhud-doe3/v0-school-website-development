@@ -10,7 +10,7 @@ const navLinks = [
   { href: "#home", label: "Home" },
   { href: "#about", label: "About" },
   { href: "#enrollment", label: "Enrollment" },
-  { href: "#vacancy", label: "Careers" },
+  { href: "#reviews", label: "Reviews" },
   { href: "#contact", label: "Contact" },
   { href: "#directions", label: "Directions" },
 ]
@@ -80,11 +80,11 @@ export function Header() {
         <div className="flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
             <Image
-              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/upscalemedia-transformed%20%286%29.png-Q38EcXynaxQ9WBgWeT8qUCarPqUFhV.jpeg"
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/upscalemedia-transformed%20%285%29.png-pmH9CYZqizaCeiWuN4BMm17mRS4KpY.jpeg"
               alt="Thika Blue Roses School Logo"
               width={50}
               height={50}
-              className="rounded-full"
+              className="rounded-lg bg-white p-0.5"
             />
             <div className="hidden sm:block">
               <h1 className="text-lg font-bold text-primary leading-tight">Thika Blue Roses</h1>

@@ -10,20 +10,21 @@ import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { 
   Lock, 
-  Smartphone, 
   ArrowLeft, 
   Users, 
-  Briefcase, 
+  MessageSquare, 
   Loader2,
   Phone,
   Mail,
   Calendar,
   MapPin,
   AlertCircle,
-  CheckCircle
+  Star,
+  User,
+  KeyRound
 } from "lucide-react"
 
-// Simulated data storage (in a real app, this would come from a database)
+// Data interfaces
 interface EnrollmentRecord {
   id: string
   studentFullName: string
@@ -36,83 +37,59 @@ interface EnrollmentRecord {
   submittedAt: string
 }
 
-interface VacancyRecord {
+interface ReviewRecord {
   id: string
-  firstName: string
-  lastName: string
+  name: string
   email: string
+  phone: string
+  subject: string
   message: string
+  rating: number
   submittedAt: string
 }
 
+// Admin credentials
+const ADMIN_USERNAME = "admin"
+const ADMIN_PASSWORD = "2015"
+
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [showOtpInput, setShowOtpInput] = useState(false)
-  const [otp, setOtp] = useState("")
-  const [generatedOtp, setGeneratedOtp] = useState("")
+  const [username, setUsername] = useState("")
+  const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
-  const [success, setSuccess] = useState("")
   
   // Data
   const [enrollments, setEnrollments] = useState<EnrollmentRecord[]>([])
-  const [vacancies, setVacancies] = useState<VacancyRecord[]>([])
+  const [reviews, setReviews] = useState<ReviewRecord[]>([])
 
   // Load data from localStorage on mount
   useEffect(() => {
     if (isAuthenticated) {
       const storedEnrollments = localStorage.getItem("tbrs_enrollments")
-      const storedVacancies = localStorage.getItem("tbrs_vacancies")
+      const storedReviews = localStorage.getItem("tbrs_reviews")
       
       if (storedEnrollments) {
         setEnrollments(JSON.parse(storedEnrollments))
       }
-      if (storedVacancies) {
-        setVacancies(JSON.parse(storedVacancies))
+      if (storedReviews) {
+        setReviews(JSON.parse(storedReviews))
       }
     }
   }, [isAuthenticated])
 
-  const handleRequestOtp = async () => {
-    setIsLoading(true)
-    setError("")
-    setSuccess("")
-    
-    // Generate a 6-digit OTP
-    const newOtp = Math.floor(100000 + Math.random() * 900000).toString()
-    setGeneratedOtp(newOtp)
-    
-    // Simulate sending OTP to +254116335366
-    // In a real app, you would integrate with an SMS API like Africa's Talking or Twilio
-    try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      
-      setShowOtpInput(true)
-      setSuccess(`OTP sent to +254 116 335 366. Please check and enter the code below.`)
-      
-      // For demo purposes, log the OTP (in production, this would be sent via SMS)
-      console.log("[v0] OTP for admin access:", newOtp)
-      console.log("[v0] OTP would be sent to: +254116335366")
-      
-    } catch {
-      setError("Failed to send OTP. Please try again.")
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleVerifyOtp = async () => {
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
     setIsLoading(true)
     setError("")
     
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 800))
     
-    if (otp === generatedOtp) {
+    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
       setIsAuthenticated(true)
-      setSuccess("Authentication successful!")
     } else {
-      setError("Invalid OTP. Please try again.")
+      setError("Invalid username or password. Please try again.")
     }
     
     setIsLoading(false)
@@ -120,14 +97,12 @@ export default function AdminPage() {
 
   const handleLogout = () => {
     setIsAuthenticated(false)
-    setShowOtpInput(false)
-    setOtp("")
-    setGeneratedOtp("")
+    setUsername("")
+    setPassword("")
     setError("")
-    setSuccess("")
   }
 
-  // OTP Login Screen
+  // Login Screen
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -135,11 +110,11 @@ export default function AdminPage() {
           <CardHeader className="text-center">
             <div className="mx-auto mb-4">
               <Image
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/upscalemedia-transformed%20%286%29.png-Q38EcXynaxQ9WBgWeT8qUCarPqUFhV.jpeg"
+                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/upscalemedia-transformed%20%285%29.png-pmH9CYZqizaCeiWuN4BMm17mRS4KpY.jpeg"
                 alt="Thika Blue Roses School Logo"
                 width={80}
                 height={80}
-                className="rounded-full mx-auto"
+                className="rounded-lg mx-auto bg-white p-1"
               />
             </div>
             <CardTitle className="text-2xl text-primary">Admin Portal</CardTitle>
@@ -148,137 +123,76 @@ export default function AdminPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {!showOtpInput ? (
-              <div className="space-y-6">
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Lock className="w-8 h-8 text-primary" />
-                  </div>
-                  <p className="text-muted-foreground text-sm mb-2">
-                    Secure OTP Verification Required
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    An OTP will be sent to the authorized phone number for verification.
-                  </p>
+            <form onSubmit={handleLogin} className="space-y-6">
+              <div className="text-center mb-4">
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Lock className="w-8 h-8 text-primary" />
                 </div>
-
-                <div className="bg-accent rounded-lg p-4">
-                  <div className="flex items-center gap-3">
-                    <Smartphone className="w-5 h-5 text-primary" />
-                    <div>
-                      <p className="text-sm font-medium">Verification Number</p>
-                      <p className="text-xs text-muted-foreground">+254 116 335 366</p>
-                    </div>
-                  </div>
-                </div>
-
-                {error && (
-                  <div className="flex items-center gap-2 text-destructive text-sm bg-destructive/10 p-3 rounded-lg">
-                    <AlertCircle className="w-4 h-4" />
-                    {error}
-                  </div>
-                )}
-
-                {success && (
-                  <div className="flex items-center gap-2 text-green-600 text-sm bg-green-50 p-3 rounded-lg">
-                    <CheckCircle className="w-4 h-4" />
-                    {success}
-                  </div>
-                )}
-
-                <Button 
-                  className="w-full" 
-                  size="lg" 
-                  onClick={handleRequestOtp}
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Sending OTP...
-                    </>
-                  ) : (
-                    "Request OTP"
-                  )}
-                </Button>
-
-                <Link href="/" className="flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-primary">
-                  <ArrowLeft className="w-4 h-4" />
-                  Back to Website
-                </Link>
+                <p className="text-muted-foreground text-sm">
+                  Enter your credentials to access the admin dashboard
+                </p>
               </div>
-            ) : (
-              <div className="space-y-6">
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Smartphone className="w-8 h-8 text-green-600" />
-                  </div>
-                  <p className="text-muted-foreground text-sm">
-                    Enter the 6-digit OTP sent to
-                  </p>
-                  <p className="font-semibold text-primary">+254 116 335 366</p>
-                </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="otp">Enter OTP</Label>
+              <div className="space-y-2">
+                <Label htmlFor="username">Username</Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
-                    id="otp"
+                    id="username"
                     type="text"
-                    maxLength={6}
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-                    placeholder="Enter 6-digit OTP"
-                    className="text-center text-2xl tracking-widest"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="Enter username"
+                    className="pl-10"
+                    required
                   />
                 </div>
+              </div>
 
-                {error && (
-                  <div className="flex items-center gap-2 text-destructive text-sm bg-destructive/10 p-3 rounded-lg">
-                    <AlertCircle className="w-4 h-4" />
-                    {error}
-                  </div>
-                )}
-
-                {success && (
-                  <div className="flex items-center gap-2 text-green-600 text-sm bg-green-50 p-3 rounded-lg">
-                    <CheckCircle className="w-4 h-4" />
-                    {success}
-                  </div>
-                )}
-
-                <Button 
-                  className="w-full" 
-                  size="lg" 
-                  onClick={handleVerifyOtp}
-                  disabled={isLoading || otp.length !== 6}
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Verifying...
-                    </>
-                  ) : (
-                    "Verify OTP"
-                  )}
-                </Button>
-
-                <div className="flex items-center justify-between text-sm">
-                  <button 
-                    onClick={() => setShowOtpInput(false)}
-                    className="text-muted-foreground hover:text-primary"
-                  >
-                    Change Number
-                  </button>
-                  <button 
-                    onClick={handleRequestOtp}
-                    className="text-primary hover:underline"
-                    disabled={isLoading}
-                  >
-                    Resend OTP
-                  </button>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <div className="relative">
+                  <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter password"
+                    className="pl-10"
+                    required
+                  />
                 </div>
               </div>
-            )}
+
+              {error && (
+                <div className="flex items-center gap-2 text-destructive text-sm bg-destructive/10 p-3 rounded-lg">
+                  <AlertCircle className="w-4 h-4" />
+                  {error}
+                </div>
+              )}
+
+              <Button 
+                type="submit"
+                className="w-full" 
+                size="lg" 
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Logging in...
+                  </>
+                ) : (
+                  "Login"
+                )}
+              </Button>
+
+              <Link href="/" className="flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-primary">
+                <ArrowLeft className="w-4 h-4" />
+                Back to Website
+              </Link>
+            </form>
           </CardContent>
         </Card>
       </div>
@@ -293,11 +207,11 @@ export default function AdminPage() {
         <div className="container mx-auto px-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Image
-              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/upscalemedia-transformed%20%286%29.png-Q38EcXynaxQ9WBgWeT8qUCarPqUFhV.jpeg"
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/upscalemedia-transformed%20%285%29.png-pmH9CYZqizaCeiWuN4BMm17mRS4KpY.jpeg"
               alt="Logo"
               width={40}
               height={40}
-              className="rounded-full"
+              className="rounded-lg bg-white p-0.5"
             />
             <div>
               <h1 className="font-bold">Admin Dashboard</h1>
@@ -336,11 +250,11 @@ export default function AdminPage() {
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-secondary/10 rounded-full flex items-center justify-center">
-                  <Briefcase className="w-6 h-6 text-secondary" />
+                  <MessageSquare className="w-6 h-6 text-secondary" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Job Applications</p>
-                  <p className="text-3xl font-bold text-secondary">{vacancies.length}</p>
+                  <p className="text-sm text-muted-foreground">Reviews & Messages</p>
+                  <p className="text-3xl font-bold text-secondary">{reviews.length}</p>
                 </div>
               </div>
             </CardContent>
@@ -351,7 +265,7 @@ export default function AdminPage() {
         <Tabs defaultValue="enrollments" className="space-y-6">
           <TabsList className="grid w-full max-w-md grid-cols-2">
             <TabsTrigger value="enrollments">Enrollments</TabsTrigger>
-            <TabsTrigger value="vacancies">Job Applications</TabsTrigger>
+            <TabsTrigger value="reviews">Reviews & Messages</TabsTrigger>
           </TabsList>
 
           <TabsContent value="enrollments">
@@ -370,6 +284,7 @@ export default function AdminPage() {
                   <div className="text-center py-12 text-muted-foreground">
                     <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
                     <p>No enrollment applications yet.</p>
+                    <p className="text-sm mt-2">Enrollment submissions will appear here.</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -421,44 +336,72 @@ export default function AdminPage() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="vacancies">
+          <TabsContent value="reviews">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Briefcase className="w-5 h-5" />
-                  Job Applications
+                  <MessageSquare className="w-5 h-5" />
+                  Reviews & Messages
                 </CardTitle>
                 <CardDescription>
-                  View all career/vacancy applications
+                  View all reviews and messages from visitors
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {vacancies.length === 0 ? (
+                {reviews.length === 0 ? (
                   <div className="text-center py-12 text-muted-foreground">
-                    <Briefcase className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                    <p>No job applications yet.</p>
+                    <MessageSquare className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                    <p>No reviews or messages yet.</p>
+                    <p className="text-sm mt-2">Submitted reviews and messages will appear here.</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {vacancies.map((vacancy) => (
-                      <Card key={vacancy.id} className="bg-accent/50">
+                    {reviews.map((review) => (
+                      <Card key={review.id} className="bg-accent/50">
                         <CardContent className="p-4">
-                          <div className="flex flex-wrap justify-between gap-4">
+                          <div className="flex flex-wrap justify-between gap-4 mb-3">
                             <div>
                               <h4 className="font-semibold text-foreground mb-1">
-                                {vacancy.firstName} {vacancy.lastName}
+                                {review.name}
                               </h4>
-                              <p className="flex items-center gap-2 text-sm text-muted-foreground">
-                                <Mail className="w-4 h-4" />
-                                {vacancy.email}
+                              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                                <span className="flex items-center gap-1">
+                                  <Mail className="w-4 h-4" />
+                                  {review.email}
+                                </span>
+                                {review.phone && (
+                                  <span className="flex items-center gap-1">
+                                    <Phone className="w-4 h-4" />
+                                    {review.phone}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="flex items-center gap-1 mb-1">
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                  <Star
+                                    key={star}
+                                    className={`w-4 h-4 ${
+                                      star <= review.rating
+                                        ? "fill-yellow-400 text-yellow-400"
+                                        : "text-muted-foreground"
+                                    }`}
+                                  />
+                                ))}
+                              </div>
+                              <p className="text-xs text-muted-foreground">
+                                {review.submittedAt}
                               </p>
                             </div>
-                            <div className="text-right text-xs text-muted-foreground">
-                              <p>Submitted: {vacancy.submittedAt}</p>
-                            </div>
                           </div>
-                          <div className="mt-3 p-3 bg-background rounded-lg">
-                            <p className="text-sm text-foreground/80">{vacancy.message}</p>
+                          <div className="bg-primary/5 rounded-lg p-3 mb-2">
+                            <p className="text-sm font-medium text-primary mb-1">
+                              Subject: {review.subject}
+                            </p>
+                          </div>
+                          <div className="p-3 bg-background rounded-lg">
+                            <p className="text-sm text-foreground/80">{review.message}</p>
                           </div>
                         </CardContent>
                       </Card>

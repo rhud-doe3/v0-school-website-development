@@ -20,11 +20,11 @@ export function HeroSection() {
         <div className="max-w-2xl text-primary-foreground">
           <div className="flex items-center gap-3 mb-6">
             <Image
-              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/upscalemedia-transformed%20%286%29.png-Q38EcXynaxQ9WBgWeT8qUCarPqUFhV.jpeg"
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/upscalemedia-transformed%20%285%29.png-pmH9CYZqizaCeiWuN4BMm17mRS4KpY.jpeg"
               alt="School Logo"
               width={80}
               height={80}
-              className="rounded-full border-4 border-white/30"
+              className="rounded-lg bg-white/95 p-1 shadow-lg"
             />
             <span className="bg-white/20 backdrop-blur-sm px-4 py-1 rounded-full text-sm font-medium">
               CBC Compliant
