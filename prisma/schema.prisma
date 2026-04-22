@@ -1,0 +1,78 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String     @id @default(cuid())
+  email     String     @unique
+  password  String
+  name      String?
+  role      String     @default("parent") // admin, parent, staff
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  
+  enrollments Enrollment[]
+  reviews     Review[]
+  
+  @@map("users")
+}
+
+model Enrollment {
+  id        String     @id @default(cuid())
+  userId    String
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  studentName     String
+  studentAge      Int
+  classLevel      String
+  parentName      String
+  parentPhone     String
+  parentEmail     String
+  address         String
+  specialNeeds    String?
+  additionalInfo  String?
+  
+  status    String     @default("pending") // pending, approved, rejected
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  
+  @@map("enrollments")
+  @@index([userId])
+  @@index([status])
+}
+
+model Review {
+  id        String     @id @default(cuid())
+  userId    String
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  rating    Int        @default(5) // 1-5 star rating
+  comment   String
+  subject   String     // e.g., "Teaching Quality", "School Facilities", "Overall Experience"
+  
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  
+  @@map("reviews")
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model AdminLog {
+  id        String     @id @default(cuid())
+  action    String     // e.g., "enrollment_viewed", "enrollment_updated"
+  userId    String?
+  details   String?
+  createdAt DateTime   @default(now())
+  
+  @@map("admin_logs")
+  @@index([createdAt])
+}
