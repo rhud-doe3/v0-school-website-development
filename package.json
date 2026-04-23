@@ -1,6 +1,12 @@
 {
   "dependencies": {
     "@supabase/supabase-js": "^2.104.0",
-    "firebase": "^12.12.0"
+    "firebase": "^12.12.0",
+    "next": "^16.2.4"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
   }
 }
