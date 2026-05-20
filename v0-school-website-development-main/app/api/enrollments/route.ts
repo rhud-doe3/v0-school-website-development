@@ -1,15 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-// Initialize Supabase client
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+// Create Supabase client inside handlers to avoid build-time initialization
+function getSupabaseClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+  
+  if (!url || !key) {
+    throw new Error('Supabase configuration missing');
+  }
+  
+  return createClient(url, key);
+}
 
 // GET all enrollments
 export async function GET(request: NextRequest) {
   try {
+    const supabase = getSupabaseClient();
     const { data, error } = await supabase
       .from("enrollment")
       .select("*")
@@ -43,6 +50,7 @@ export async function GET(request: NextRequest) {
 // POST new enrollment
 export async function POST(request: NextRequest) {
   try {
+    const supabase = getSupabaseClient();
     const body = await request.json();
 
     const { data, error } = await supabase

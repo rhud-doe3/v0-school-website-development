@@ -1,13 +1,6 @@
-import { PrismaClient } from "@prisma/client"
+// Prisma client is not used in this project
+// All database operations use Supabase directly
+// This file is kept for backward compatibility
 
-const globalForPrisma = global as unknown as { prisma: PrismaClient }
-
-export const prisma =
-  globalForPrisma.prisma ||
-  new PrismaClient({
-    log: ["error"],
-    errorFormat: "minimal",
-  })
-
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma
+export const prisma = null;
 
