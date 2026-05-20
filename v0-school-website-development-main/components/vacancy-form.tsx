@@ -35,7 +35,7 @@ export function VacancyForm() {
     setIsSubmitting(true)
     
     try {
-      const response = await fetch("/api/vacancy", {
+      const response = await fetch("/api/reviews", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
