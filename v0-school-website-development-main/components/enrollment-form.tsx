@@ -40,7 +40,7 @@ export function EnrollmentForm() {
     setIsSubmitting(true)
     
     try {
-      const response = await fetch("/api/enrollment", {
+      const response = await fetch("/api/enrollments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
