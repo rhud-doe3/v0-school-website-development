@@ -74,7 +74,7 @@ export function DirectionsSection() {
                           Get Directions
                         </a>
                       </Button>
-                      <Button asChild variant="outline" className="gap-2 border-white/30 text-white hover:bg-white/10">
+                      <Button asChild className="gap-2 bg-white text-primary hover:bg-white/90">
                         <a
                           href="https://maps.app.goo.gl/oRHAeSwwnqbLA3Bc6?g_st=aw"
                           target="_blank"

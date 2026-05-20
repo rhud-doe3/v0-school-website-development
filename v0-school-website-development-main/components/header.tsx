@@ -4,7 +4,6 @@ import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Menu, X, Phone, MapPin } from "lucide-react"
-import { Button } from "@/components/ui/button"
 
 const navLinks = [
   { href: "#home", label: "Home" },
@@ -103,11 +102,6 @@ export function Header() {
                 {link.label}
               </a>
             ))}
-            <Link href="/admin">
-              <Button variant="outline" size="sm">
-                Admin
-              </Button>
-            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -134,11 +128,6 @@ export function Header() {
                   {link.label}
                 </a>
               ))}
-              <Link href="/admin" onClick={() => setMobileMenuOpen(false)}>
-                <Button variant="outline" size="sm" className="w-full">
-                  Admin
-                </Button>
-              </Link>
             </div>
           </div>
         )}
