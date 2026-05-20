@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { RealtimeStatus } from "@/components/realtime-status"
+import { useRealtimeSubscriptions } from "@/lib/hooks/useRealtimeSubscriptions"
 import { 
   Lock, 
   Smartphone, 
@@ -23,7 +25,7 @@ import {
   CheckCircle
 } from "lucide-react"
 
-// Simulated data storage (in a real app, this would come from a database)
+// Data types
 interface EnrollmentRecord {
   id: string
   studentFullName: string
@@ -57,19 +59,80 @@ export default function AdminPage() {
   // Data
   const [enrollments, setEnrollments] = useState<EnrollmentRecord[]>([])
   const [vacancies, setVacancies] = useState<VacancyRecord[]>([])
+  const [realtimeConnected, setRealtimeConnected] = useState(false)
+  const [lastUpdate, setLastUpdate] = useState<Date | undefined>()
 
-  // Load data from localStorage on mount
+  // Real-time subscriptions
+  useRealtimeSubscriptions({
+    onEnrollmentInsert: useCallback((enrollment: EnrollmentRecord) => {
+      console.log('[v0] Adding new enrollment to UI:', enrollment.id)
+      setEnrollments(prev => [enrollment, ...prev])
+      setLastUpdate(new Date())
+    }, []),
+    onEnrollmentUpdate: useCallback((enrollment: EnrollmentRecord) => {
+      console.log('[v0] Updating enrollment in UI:', enrollment.id)
+      setEnrollments(prev =>
+        prev.map(e => e.id === enrollment.id ? enrollment : e)
+      )
+      setLastUpdate(new Date())
+    }, []),
+    onEnrollmentDelete: useCallback((id: string) => {
+      console.log('[v0] Removing enrollment from UI:', id)
+      setEnrollments(prev => prev.filter(e => e.id !== id))
+      setLastUpdate(new Date())
+    }, []),
+    onReviewInsert: useCallback((review: VacancyRecord) => {
+      console.log('[v0] Adding new vacancy/review to UI:', review.id)
+      setVacancies(prev => [review, ...prev])
+      setLastUpdate(new Date())
+    }, []),
+    onReviewUpdate: useCallback((review: VacancyRecord) => {
+      console.log('[v0] Updating vacancy/review in UI:', review.id)
+      setVacancies(prev =>
+        prev.map(v => v.id === review.id ? review : v)
+      )
+      setLastUpdate(new Date())
+    }, []),
+    onReviewDelete: useCallback((id: string) => {
+      console.log('[v0] Removing vacancy/review from UI:', id)
+      setVacancies(prev => prev.filter(v => v.id !== id))
+      setLastUpdate(new Date())
+    }, []),
+    onConnectionChange: useCallback((connected: boolean) => {
+      console.log('[v0] Real-time connection status:', connected)
+      setRealtimeConnected(connected)
+    }, []),
+  })
+
+  // Load initial data from API on authentication
   useEffect(() => {
     if (isAuthenticated) {
-      const storedEnrollments = localStorage.getItem("tbrs_enrollments")
-      const storedVacancies = localStorage.getItem("tbrs_vacancies")
+      const loadData = async () => {
+        try {
+          const [enrollmentsRes, vacanciesRes] = await Promise.all([
+            fetch('/api/enrollments'),
+            fetch('/api/reviews')
+          ])
+          
+          if (enrollmentsRes.ok) {
+            const data = await enrollmentsRes.json()
+            console.log('[v0] Loaded enrollments:', data.length)
+            setEnrollments(data)
+          }
+          
+          if (vacanciesRes.ok) {
+            const data = await vacanciesRes.json()
+            console.log('[v0] Loaded vacancies:', data.length)
+            setVacancies(data)
+          }
+          
+          setLastUpdate(new Date())
+        } catch (err) {
+          console.error('[v0] Error loading data:', err)
+        }
+      }
       
-      if (storedEnrollments) {
-        setEnrollments(JSON.parse(storedEnrollments))
-      }
-      if (storedVacancies) {
-        setVacancies(JSON.parse(storedVacancies))
-      }
+      loadData()
     }
   }, [isAuthenticated])
 
@@ -317,6 +380,11 @@ export default function AdminPage() {
 
       {/* Dashboard Content */}
       <main className="container mx-auto px-4 py-8">
+        {/* Real-time Status */}
+        <div className="mb-6">
+          <RealtimeStatus connected={realtimeConnected} lastUpdate={lastUpdate} />
+        </div>
+
         {/* Stats */}
         <div className="grid sm:grid-cols-2 gap-6 mb-8">
           <Card>
