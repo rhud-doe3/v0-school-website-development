@@ -152,6 +152,11 @@ export function Footer() {
           <p className="text-background/40 text-xs mt-2">
             CBC Compliant | Quality Education in Thika, Kenya
           </p>
+          <p className="text-background/30 text-xs mt-4">
+            <Link href="/admin" className="hover:text-background/50 transition-colors">
+              Admin Portal
+            </Link>
+          </p>
         </div>
       </div>
     </footer>
